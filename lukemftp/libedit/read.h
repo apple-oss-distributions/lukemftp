@@ -1,11 +1,11 @@
-/*	$NetBSD: fgetln.c,v 1.1.1.1 1999/04/12 07:43:21 crooksa Exp $	*/
+/*	$NetBSD: read.h,v 1.1 2001/09/27 19:29:50 christos Exp $	*/
 
 /*-
- * Copyright (c) 1998 The NetBSD Foundation, Inc.
+ * Copyright (c) 2001 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * This code is derived from software contributed to The NetBSD Foundation
- * by Christos Zoulas.
+ * by Anthony Mallet.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,49 +36,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "lukemftp.h"
+/*
+ * el.read.h: Character reading functions
+ */
+#ifndef	_h_el_read
+#define	_h_el_read
 
-char *
-fgetln(fp, len)
-	FILE *fp;
-	size_t *len;
-{
-	static char *buf = NULL;
-	static size_t bufsiz = 0;
-	char *ptr;
+typedef int (*el_rfunc_t)(EditLine *, char *);
 
+typedef struct el_read_t {
+	el_rfunc_t	read_char;	/* Function to read a character */
+} el_read_t;
+ 
+protected int		read_init(EditLine *);
+protected int		el_read_setfn(EditLine *, el_rfunc_t);
+protected el_rfunc_t	el_read_getfn(EditLine *);
 
-	if (buf == NULL) {
-		bufsiz = BUFSIZ;
-		if ((buf = malloc(bufsiz)) == NULL)
-			return NULL;
-	}
-
-	if (fgets(buf, bufsiz, fp) == NULL)
-		return NULL;
-	*len = 0;
-
-	while ((ptr = strchr(&buf[*len], '\n')) == NULL) {
-		size_t nbufsiz = bufsiz + BUFSIZ;
-		char *nbuf = realloc(buf, nbufsiz);
-
-		if (nbuf == NULL) {
-			int oerrno = errno;
-			free(buf);
-			errno = oerrno;
-			buf = NULL;
-			return NULL;
-		} else
-			buf = nbuf;
-
-		*len = bufsiz;
-		if (fgets(&buf[bufsiz], BUFSIZ, fp) == NULL)
-			return buf;
-
-		bufsiz = nbufsiz;
-	}
-
-	*len = (ptr - buf) + 1;
-	return buf;
-}
-
+#endif /* _h_el_read */

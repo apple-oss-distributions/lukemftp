@@ -1,11 +1,12 @@
-/*	$NetBSD: fgetln.c,v 1.1.1.1 1999/04/12 07:43:21 crooksa Exp $	*/
+/*	$Id: setprogname.c,v 1.1.1.1 2003/01/12 08:49:56 bbraun Exp $	*/
+/*	$NetBSD: setprogname.c,v 1.3 2002/01/31 19:21:58 tv Exp $	*/
 
 /*-
- * Copyright (c) 1998 The NetBSD Foundation, Inc.
+ * Copyright (c) 2001 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * This code is derived from software contributed to The NetBSD Foundation
- * by Christos Zoulas.
+ * by Todd Vierling.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,47 +39,20 @@
 
 #include "lukemftp.h"
 
-char *
-fgetln(fp, len)
-	FILE *fp;
-	size_t *len;
+static const char *__progname = "<unset_progname>";
+
+void
+setprogname(const char *progname)
 {
-	static char *buf = NULL;
-	static size_t bufsiz = 0;
-	char *ptr;
-
-
-	if (buf == NULL) {
-		bufsiz = BUFSIZ;
-		if ((buf = malloc(bufsiz)) == NULL)
-			return NULL;
-	}
-
-	if (fgets(buf, bufsiz, fp) == NULL)
-		return NULL;
-	*len = 0;
-
-	while ((ptr = strchr(&buf[*len], '\n')) == NULL) {
-		size_t nbufsiz = bufsiz + BUFSIZ;
-		char *nbuf = realloc(buf, nbufsiz);
-
-		if (nbuf == NULL) {
-			int oerrno = errno;
-			free(buf);
-			errno = oerrno;
-			buf = NULL;
-			return NULL;
-		} else
-			buf = nbuf;
-
-		*len = bufsiz;
-		if (fgets(&buf[bufsiz], BUFSIZ, fp) == NULL)
-			return buf;
-
-		bufsiz = nbufsiz;
-	}
-
-	*len = (ptr - buf) + 1;
-	return buf;
+	__progname = strrchr(progname, '/');
+	if (__progname == NULL)
+		__progname = progname;
+	else
+		__progname++;
 }
 
+const char *
+getprogname(void)
+{
+	return __progname;
+}

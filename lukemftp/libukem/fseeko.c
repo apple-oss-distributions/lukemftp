@@ -1,7 +1,7 @@
-/*	$Id$	*/
+/*	$Id: fseeko.c,v 1.1.1.1 2003/01/12 08:49:55 bbraun Exp $	*/
 
 /*
- * Copyright 1997-2000 Luke Mewburn <lukem@netbsd.org>.
+ * Copyright 2002 Luke Mewburn <lukem@netbsd.org>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,64 +29,12 @@
 
 #include "lukemftp.h"
 
-void
-err(int eval, const char *fmt, ...)
+int
+fseeko(FILE *stream, off_t offset, int whence)
 {
-	va_list	ap;
-        int	sverrno;
-
-	sverrno = errno;
-        (void)fprintf(stderr, "%s: ", getprogname());
-	va_start(ap, fmt);
-        if (fmt != NULL) {
-                (void)vfprintf(stderr, fmt, ap);
-                (void)fprintf(stderr, ": ");
-        }
-	va_end(ap);
-        (void)fprintf(stderr, "%s\n", strerror(sverrno));
-        exit(eval);
-}
-
-void
-errx(int eval, const char *fmt, ...)
-{
-	va_list	ap;
-
-        (void)fprintf(stderr, "%s: ", getprogname());
-	va_start(ap, fmt);
-        if (fmt != NULL)
-                (void)vfprintf(stderr, fmt, ap);
-	va_end(ap);
-        (void)fprintf(stderr, "\n");
-        exit(eval);
-}
-
-void
-warn(const char *fmt, ...)
-{
-	va_list	ap;
-        int	sverrno;
-
-	sverrno = errno;
-        (void)fprintf(stderr, "%s: ", getprogname());
-	va_start(ap, fmt);
-        if (fmt != NULL) {
-                (void)vfprintf(stderr, fmt, ap);
-                (void)fprintf(stderr, ": ");
-        }
-	va_end(ap);
-        (void)fprintf(stderr, "%s\n", strerror(sverrno));
-}
-
-void
-warnx(const char *fmt, ...)
-{
-	va_list	ap;
-
-        (void)fprintf(stderr, "%s: ", getprogname());
-	va_start(ap, fmt);
-        if (fmt != NULL)
-                (void)vfprintf(stderr, fmt, ap);
-	va_end(ap);
-        (void)fprintf(stderr, "\n");
+	if (offset > (off_t)LONG_MAX) {
+		errno = EINVAL;
+		return (-1);
+	}
+	return (fseek(stream, (long) offset, whence));
 }
