@@ -12,7 +12,7 @@ datarootdir = @datarootdir@
 mandir	= @mandir@
 transform = @program_transform_name@
 
-mandirman1 = ${mandir}/man1
+mandircat1 = ${mandir}/cat1
 
 CC	= @CC@
 CFLAGS	= @CFLAGS@
@@ -41,8 +41,8 @@ ${OBJS}: ${srcdir}/../tnftp.h ../config.h
 install: all
 	-mkdir -p ${bindir}
 	${INSTALL} -m 555 ${PROG} ${bindir}/`echo ${PROG}|sed '$(transform)'`
-	-mkdir -p ${mandirman1}
-	${INSTALL} -m 444 ${srcdir}/${PROG}.1 ${mandirman1}/`echo ${PROG}|sed '$(transform)'`.1
+	-mkdir -p ${mandircat1}
+	${INSTALL} -m 444 ${srcdir}/${PROG}.cat1 ${mandircat1}/`echo ${PROG}|sed '$(transform)'`.1
 
 clean:
 	rm -f core ${PROG} ${OBJS}
